@@ -1,13 +1,8 @@
 from pynput import keyboard
 
-CONFIG = {
-    'qx':('qx-user', 'qx-pass'),
-    'ad':('as-user', 'ad-pass'),
-    'cc':('cc-user', 'cc-pass'),
-}
 
 # =======================================================================================
-# Tools
+# Helpers
 # =======================================================================================
 def is_equal(seq1, seq2):
     return list(seq1) == list(seq2)
@@ -26,15 +21,23 @@ class Keyboard:
     _controler = keyboard.Controller()
 
     @classmethod
-    def Type(cls, text, backoff=0):
+    def Type(cls, text=None, backoff=0, enter=False):
         for _ in range(backoff): 
             cls.click(keyboard.Key.backspace)
-        cls._controler.type(text)
+        if text: 
+            cls._controler.type(text)
+        if enter: 
+            cls.click(keyboard.Key.enter)
 
     @classmethod
     def click(cls, key):
         cls._controler.press(key)
         cls._controler.release(key)
+
+    # Public Keys
+    ALT   = keyboard.Key.alt
+    SHIFT = keyboard.Key.shift 
+    KEY   = lambda x : keyboard.KeyCode(char=x)
 
            
 
