@@ -1,5 +1,9 @@
+# =======================================================================================
+#                          \    |  | __ __| _ \  |  /  __| \ \  /  __| 
+#                         _ \   |  |    |  (   | . <   _|   \  / \__ \ 
+# @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
+# =======================================================================================
 from pynput import keyboard
-
 
 # =======================================================================================
 # Helpers
@@ -186,7 +190,7 @@ class KeyPatterns(keyboard.Listener):
 
         # do nothing when some are active
         if active: return
-        
+
         # reset stack when all are disable
         if disable: self._stack.clr()
             

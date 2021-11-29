@@ -1,6 +1,7 @@
 # =======================================================================================
-# File:   setup.py
-# Author: Luis Monteiro
+#                          \    |  | __ __| _ \  |  /  __| \ \  /  __| 
+#                         _ \   |  |    |  (   | . <   _|   \  / \__ \ 
+# @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
 # =======================================================================================
 # imports
 from setuptools import setup, find_packages
@@ -16,8 +17,7 @@ setup(
     description='',
     packages= find_packages(include=['autokeys', 'autokeys/*']),
     install_requires=[
-        'click',
-        'dpath',
+        'pyyaml',
         'pynput'
     ],
     entry_points={
