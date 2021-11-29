@@ -35,8 +35,10 @@ class Keyboard:
         cls._controler.release(key)
 
     # Public Keys
-    ALT   = keyboard.Key.alt
     SHIFT = keyboard.Key.shift 
+    CTRL  = keyboard.Key.ctrl
+    ALT   = keyboard.Key.alt
+    CMD   = keyboard.Key.cmd
     KEY   = lambda x : keyboard.KeyCode(char=x)
 
            
@@ -154,7 +156,6 @@ class KeyPatterns(keyboard.Listener):
         self._board = keyboard.Controller()
     
     def _on_press(self, key):
-        print(key)
         for comb in self._stack.get():
             comb.press(self.canonical(key), key)
     
@@ -185,35 +186,12 @@ class KeyPatterns(keyboard.Listener):
 
         # do nothing when some are active
         if active: return
-
+        
         # reset stack when all are disable
         if disable: self._stack.clr()
-
-        # stop listener              
-        if key == keyboard.Key.esc: return False
-    
+            
     def _reset(self):
         for step in reversed(self._stack):
             for obj in step:
                 obj.reset()
         self._stack = [self._space]
-
-# =======================================================================================
-# entry point
-# =======================================================================================
-config = {
-    HotKeys(keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='u')): {
-        SeqKeys(keyboard.KeyCode(char='q'), keyboard.KeyCode(char='x')): (lambda x: Keyboard.Type('QXZ15D1', len(x)) ),
-        SeqKeys(keyboard.KeyCode(char='a'), keyboard.KeyCode(char='d')): (lambda x: Keyboard.Type('lmontei1', len(x)) )
-    },
-    HotKeys(keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='p')): {
-        SeqKeys(keyboard.KeyCode(char='q'), keyboard.KeyCode(char='x')): (lambda x: Keyboard.Type('AtomicGillsExpertBachWade', len(x)) ),
-        SeqKeys(keyboard.KeyCode(char='a'), keyboard.KeyCode(char='d')): (lambda x: Keyboard.Type('Nistor_1984', len(x)) )
-    }
-}
-
-try:
-    with KeyPatterns(config) as listener:
-        listener.join()
-except KeyboardInterrupt:
-    pass

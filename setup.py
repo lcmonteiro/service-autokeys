@@ -14,7 +14,7 @@ setup(
     author='Luis Monteiro',
     author_email='monteiro.lcm@gmail.co',
     description='',
-    packages= find_packages(include=['autokeys']),
+    packages= find_packages(include=['autokeys', 'autokeys/*']),
     install_requires=[
         'click',
         'dpath',
