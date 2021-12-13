@@ -18,7 +18,8 @@ setup(
     packages= find_packages(include=['autokeys', 'autokeys/*']),
     install_requires=[
         'pyyaml',
-        'pynput'
+        'pynput',
+        'pyperclip'
     ],
     entry_points={
         'console_scripts': [

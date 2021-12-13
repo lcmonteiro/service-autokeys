@@ -4,6 +4,8 @@
 # @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
 # =======================================================================================
 from pynput import keyboard
+from multiprocessing import Process
+from pyperclip import copy, paste
 
 # =======================================================================================
 # Helpers
@@ -17,13 +19,31 @@ def is_subset(sub, seq):
 def is_subseq(sub, seq):
     return len(sub) <= len(seq) and all(map(lambda x, y: x==y, sub, seq))
 
+# =======================================================================================
+# Clipboard
+# =======================================================================================
+class MyException(Exception): pass
+class Clipboard:
+    @classmethod
+    def Stage(cls, text):
+        def revert(text):
+            print("start")
+            def on_release(key):
+                copy(text) 
+                exit(0)
+            # start listener
+            with keyboard.Listener(on_release=on_release) as listener:
+                listener.join()
+            print('stop')
+        Process(target=revert, args=(paste(),), daemon=True).start()
+        copy(text)
+    
 
 # =======================================================================================
 # Keyboard
 # =======================================================================================
 class Keyboard:
     _controler = keyboard.Controller()
-
     @classmethod
     def Type(cls, text=None, backoff=0, enter=False):
         for _ in range(backoff): 
@@ -62,7 +82,6 @@ class Keys:
     def reset(self):              pass
 
 
-
 # =======================================================================================
 # HotKeys
 # =======================================================================================
@@ -84,7 +103,7 @@ class HotKeys(Keys):
             self._active = True
 
     def release(self, key, _):
-        self._press.remove(key)
+        self._press = list(filter(lambda k: k!=key, self._press))
         if not self._press:
             return self._active
     
@@ -115,7 +134,7 @@ class SeqKeys(Keys):
             self._active = True
 
     def release(self, key, _):
-        self._press.remove(key)
+        self._press = list(filter(lambda k: k!=key, self._press))
         if not self._press:
             return self._active
 

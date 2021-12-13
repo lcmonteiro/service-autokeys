@@ -3,7 +3,7 @@
 #                         _ \   |  |    |  (   | . <   _|   \  / \__ \ 
 # @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
 # =======================================================================================
-from autokeys.engine import Keyboard, HotKeys, SeqKeys
+from autokeys.engine import Keyboard, HotKeys, SeqKeys, Clipboard
 
 
 # =======================================================================================
@@ -12,9 +12,15 @@ from autokeys.engine import Keyboard, HotKeys, SeqKeys
 def config_credentials(data):
     # actions
     def write_user(user):
-        return lambda x: Keyboard.Type(user, len(x))
-    def write_pass(user):
-        return lambda x: Keyboard.Type(user, len(x))
+        def process(x):
+            Keyboard.Type(user, len(x))
+        return process
+    def write_pass(password):
+        def process(x):
+            Keyboard.Type(password, len(x))
+            Clipboard.Stage(password)
+        return process
+
 
     # build config
     hotkeys_user = HotKeys(Keyboard.CTRL, Keyboard.ALT, Keyboard.KEY('u'))
