@@ -6,6 +6,7 @@
 from pynput import keyboard
 from multiprocessing import Process
 from pyperclip import copy, paste
+from time import time
 
 # =======================================================================================
 # Helpers
@@ -26,19 +27,18 @@ class MyException(Exception): pass
 class Clipboard:
     @classmethod
     def Stage(cls, text):
-        def revert(text):
-            print("start")
-            def on_release(key):
-                copy(text) 
-                exit(0)
-            # start listener
-            with keyboard.Listener(on_release=on_release) as listener:
-                listener.join()
-            print('stop')
-        Process(target=revert, args=(paste(),), daemon=True).start()
+        Process(target=cls.Revert, args=(paste(),), daemon=True).start()
         copy(text)
+        
+    @classmethod
+    def Revert(cls, text):
+        def on_release(key):
+            copy(text) 
+            exit(0)
+        # start listener
+        with keyboard.Listener(on_release=on_release) as listener:
+            listener.join()
     
-
 # =======================================================================================
 # Keyboard
 # =======================================================================================
@@ -86,16 +86,17 @@ class Keys:
 # HotKeys
 # =======================================================================================
 class HotKeys(Keys):
+    MAX_LIVES = 5
     def __init__(self, *args):
         super().__init__(*args)
-        self._press = []
-        self._active = None
+        self.reset()
 
     def press(self, key, _):
         if key not in self._press: 
             self._press.append(key)
             if not is_subset(self._press, self._keys):
                 self._active = False
+                self._lives -= 1
                 return
             if not is_subset(self._keys, self._press):
                 self._active = None
@@ -104,12 +105,13 @@ class HotKeys(Keys):
 
     def release(self, key, _):
         self._press = list(filter(lambda k: k!=key, self._press))
-        if not self._press:
+        if not self._press or not self._lives:
             return self._active
-    
+
     def reset(self):
         self._press = []
         self._active = None
+        self._lives = self.MAX_LIVES
 
 # =======================================================================================
 # SeqKeys
@@ -117,9 +119,7 @@ class HotKeys(Keys):
 class SeqKeys(Keys):
     def __init__(self, *args):
         super().__init__(*args)
-        self._press = []
-        self._chars = []
-        self._active = None
+        self.reset()
 
     def press(self, key, char):
         if key not in self._press: 
@@ -135,8 +135,7 @@ class SeqKeys(Keys):
 
     def release(self, key, _):
         self._press = list(filter(lambda k: k!=key, self._press))
-        if not self._press:
-            return self._active
+        return self._active
 
     def reset(self):
         self._press = []
