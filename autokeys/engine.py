@@ -3,10 +3,10 @@
 #                         _ \   |  |    |  (   | . <   _|   \  / \__ \ 
 # @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
 # =======================================================================================
+import atexit
 from pynput import keyboard
-from multiprocessing import Process
+from threading import Lock, Timer
 from pyperclip import copy, paste
-from time import time
 
 # =======================================================================================
 # Helpers
@@ -25,20 +25,55 @@ def is_subseq(sub, seq):
 # =======================================================================================
 class MyException(Exception): pass
 class Clipboard:
+    """Stage a secret on the clipboard, then take it back off again.
+
+    Reverting on the next key release, as this used to, loses the race against
+    the modifier keys still held from the triggering hotkey - and against the
+    Ctrl+V the user is trying to paste with. A deadline is coarser, but it is
+    the same deadline every time.
+    """
+    TIMEOUT = 20.0
+
+    _lock    = Lock()
+    _pending = None    # (staged, previous) awaiting revert
+    _timer   = None
+    _epoch   = 0
+
     @classmethod
-    def Stage(cls, text):
-        Process(target=cls.Revert, args=(paste(),), daemon=True).start()
-        copy(text)
-        
+    def Stage(cls, text, timeout=None):
+        with cls._lock:
+            cls._epoch += 1
+            epoch = cls._epoch
+            if cls._timer is not None:
+                cls._timer.cancel()
+            # On back-to-back stages paste() would hand back the *previous*
+            # secret, so carry the original clipboard value forward instead.
+            previous = cls._pending[1] if cls._pending else paste()
+            cls._pending = (text, previous)
+            copy(text)
+            cls._timer = Timer(
+                cls.TIMEOUT if timeout is None else timeout,
+                cls.Revert, args=(epoch,))
+            cls._timer.daemon = True
+            cls._timer.start()
+
     @classmethod
-    def Revert(cls, text):
-        def on_release(key):
-            copy(text) 
-            exit(0)
-        # start listener
-        with keyboard.Listener(on_release=on_release) as listener:
-            listener.join()
-    
+    def Revert(cls, epoch=None):
+        with cls._lock:
+            if cls._pending is None:
+                return
+            if epoch is not None and epoch != cls._epoch:
+                return                  # a newer Stage() owns the clipboard
+            staged, previous = cls._pending
+            if paste() == staged:       # do not clobber what the user copied
+                copy(previous)
+            cls._pending = None
+            cls._timer = None
+
+
+atexit.register(Clipboard.Revert)
+
+
 # =======================================================================================
 # Keyboard
 # =======================================================================================
@@ -105,8 +140,11 @@ class HotKeys(Keys):
 
     def release(self, key, _):
         self._press = list(filter(lambda k: k!=key, self._press))
-        if not self._press or not self._lives <= 0:
+        # Commit to a verdict only once the whole combo is up, or once it has
+        # burned through its lives; stay pending (None) while keys are held.
+        if not self._press or self._lives <= 0:
             return self._active
+        return None
 
     def reset(self):
         self._press = []
@@ -177,11 +215,19 @@ class KeyPatterns(keyboard.Listener):
         self._stack = self.Stack(config)
         self._board = keyboard.Controller()
     
-    def _on_press(self, key):
+    def _on_press(self, key, injected=False):
+        # Keyboard.Type() synthesises events through a Controller and the OS
+        # reports them back to this listener. Replaying our own output would
+        # corrupt the match state, so drop it. The default keeps the callback
+        # working on pynput releases that pass the key alone.
+        if injected:
+            return
         for comb in self._stack.get():
             comb.press(self.canonical(key), key)
-    
-    def _on_release(self, key):
+
+    def _on_release(self, key, injected=False):
+        if injected:
+            return
         active  = {}
         enable  = {}
         disable = {}

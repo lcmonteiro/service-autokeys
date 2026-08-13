@@ -18,9 +18,14 @@ setup(
     packages= find_packages(include=['autokeys', 'autokeys/*']),
     install_requires=[
         'pyyaml',
-        'pynput',
+        # 1.8 reports whether a key event was injected, which the pattern engine
+        # needs in order to ignore the keystrokes it synthesises itself
+        'pynput>=1.8',
         'pyperclip'
     ],
+    extras_require={
+        'dev': ['pytest']
+    },
     entry_points={
         'console_scripts': [
             "autokeys=autokeys.service:main"
