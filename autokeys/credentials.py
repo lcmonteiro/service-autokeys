@@ -1,36 +1,73 @@
 # =======================================================================================
-#                          \    |  | __ __| _ \  |  /  __| \ \  /  __| 
-#                         _ \   |  |    |  (   | . <   _|   \  / \__ \ 
-# @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
+#                          \    |  | __ __| _ \  |  /  __| \ \  /  __|
+#                         _ \   |  |    |  (   | . <   _|   \  / \__ \
+# @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/
 # =======================================================================================
-from autokeys.engine import Keyboard, HotKeys, SeqKeys, Clipboard
+"""Usernames behind `Ctrl+Alt+U`, passwords behind `Ctrl+Alt+P`."""
+from __future__ import annotations
+
+from typing import Any, Dict, Mapping, Optional
+
+from autokeys.engine import (
+    Branch, Chord, Clipboard, Keyboard, Pattern, Sequence, chars)
 
 
 # =======================================================================================
-# build credentials config 
+# actions
 # =======================================================================================
-def config_credentials(data):
-    # actions
-    def write_user(user):
-        def process(x):
-            Keyboard.Type(user, len(x))
-        return process
-    def write_pass(password):
-        def process(x):
-            Keyboard.Type(password, len(x))
-            Clipboard.Stage(password)
-        return process
+def write_user(user: str):
+    """Replace the trigger the user just typed with their username."""
+    def action(pattern: Pattern) -> None:
+        Keyboard.type(user, backspaces=len(pattern))
+    return action
 
 
-    # build config
-    hotkeys_user = HotKeys(Keyboard.CTRL, Keyboard.ALT, Keyboard.KEY('u'))
-    hotkeys_pass = HotKeys(Keyboard.CTRL, Keyboard.ALT, Keyboard.KEY('p'))
-    hotkeys_conf = {
-        hotkeys_user:{},
-        hotkeys_pass:{}}
-    for key, entry in data.items():
-        # user
-        hotkeys_conf[hotkeys_user][SeqKeys(*[Keyboard.KEY(x) for x in key])] = write_user(entry['user']) 
-        # pass
-        hotkeys_conf[hotkeys_pass][SeqKeys(*[Keyboard.KEY(x) for x in key])] = write_pass(entry['pass'])
-    return hotkeys_conf
+def write_pass(password: str, stage: bool = False, timeout: Optional[float] = None):
+    """Replace the trigger with the password, optionally staging a copy.
+
+    Staging puts the password where every process on the machine can read it,
+    so it is off unless the settings file asks for it.
+    """
+    def action(pattern: Pattern) -> None:
+        Keyboard.type(password, backspaces=len(pattern))
+        if stage:
+            Clipboard.stage(password, timeout)
+    return action
+
+
+# =======================================================================================
+# build credentials config
+# =======================================================================================
+def config_credentials(data: Optional[Mapping[str, Any]] = None,
+                       options=None) -> Dict[Pattern, Branch]:
+    """Bind a trigger per credential under each of the two chords.
+
+        credentials:
+          gh:
+            user: octocat
+            pass-env: GITHUB_PASSWORD
+    """
+    # Imported here to keep the import graph acyclic; config builds on us.
+    from autokeys.config import ConfigError, Options, _mapping, secret
+
+    options = options or Options()
+
+    users: Dict[Pattern, Branch] = {}
+    passwords: Dict[Pattern, Branch] = {}
+    for alias, entry in _mapping(data, 'credentials').items():
+        alias = str(alias)
+        if not alias:
+            raise ConfigError('credentials: trigger must not be empty')
+        entry = _mapping(entry, "credentials: '{}'".format(alias))
+        users[Sequence(*chars(alias))] = write_user(
+            secret(entry, 'user', alias))
+        passwords[Sequence(*chars(alias))] = write_pass(
+            secret(entry, 'pass', alias),
+            stage=options.clipboard,
+            timeout=options.clipboard_timeout,
+        )
+
+    return {
+        Chord(Keyboard.CTRL, Keyboard.ALT, Keyboard.key('u')): users,
+        Chord(Keyboard.CTRL, Keyboard.ALT, Keyboard.key('p')): passwords,
+    }

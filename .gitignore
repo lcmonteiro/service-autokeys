@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# autokeys settings hold credentials - never commit them
+*.yml
+*.yaml
+!config-sample.yml
+!.github/workflows/*.yml

@@ -1,10 +1,34 @@
+# =======================================================================================
+# autokeys settings
+#
+# This file holds credentials. Keep it to yourself:
+#
+#     chmod 600 config.yml
+#
+# autokeys refuses to start if the file is readable by group or others.
+# =======================================================================================
+
+options:
+  # Also place the password on the clipboard after typing it, so it can be
+  # pasted a second time. Off by default: the clipboard is readable by every
+  # process on the machine.
+  clipboard: false
+  # Seconds a staged password stays on the clipboard before it is withdrawn.
+  clipboard-timeout: 20
+
+# Ctrl+Alt+U then the trigger types the username.
+# Ctrl+Alt+P then the trigger types the password.
 credentials:
   aa:
     user: aa-user
     pass: aa-pass
-    sites: []
   bb:
     user: bb-user
-    pass: bb-pass
-    sites: []
-  
+    # Prefer pass-env: the password stays out of this file, out of backups and
+    # out of version control.
+    pass-env: BB_PASSWORD
+
+# Ctrl+Alt+Cmd then the trigger expands to text.
+# The trigger `exit` is reserved: it stops the service.
+commands:
+  addr: 221B Baker Street, London
