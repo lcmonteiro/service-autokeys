@@ -6,7 +6,6 @@
 from pynput import keyboard
 from multiprocessing import Process
 from pyperclip import copy, paste
-from time import time
 
 # =======================================================================================
 # Helpers
