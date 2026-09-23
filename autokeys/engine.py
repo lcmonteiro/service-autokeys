@@ -26,8 +26,10 @@ class MyException(Exception): pass
 class Clipboard:
     @classmethod
     def Stage(cls, text):
-        Process(target=cls.Revert, args=(paste(),), daemon=True).start()
+        previous = paste()
+        # stage the text before arming the revert, never the other way around
         copy(text)
+        Process(target=cls.Revert, args=(previous,), daemon=True).start()
         
     @classmethod
     def Revert(cls, text):
