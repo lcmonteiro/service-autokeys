@@ -26,16 +26,23 @@ class MyException(Exception): pass
 class Clipboard:
     @classmethod
     def Stage(cls, text):
-        Process(target=cls.Revert, args=(paste(),), daemon=True).start()
+        previous = paste()
+        # stage the text before arming the revert, never the other way around
         copy(text)
+        Process(target=cls.Revert, args=(previous,), daemon=True).start()
         
     @classmethod
     def Revert(cls, text):
+        seen = set()
+        def on_press(key):
+            seen.add(key)
         def on_release(key):
-            copy(text) 
-            exit(0)
+            if key not in seen:
+                return
+            copy(text)
+            return False
         # start listener
-        with keyboard.Listener(on_release=on_release) as listener:
+        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
             listener.join()
     
 # =======================================================================================
