@@ -31,11 +31,16 @@ class Clipboard:
         
     @classmethod
     def Revert(cls, text):
+        seen = set()
+        def on_press(key):
+            seen.add(key)            # tecla premida depois da password estar no clipboard
         def on_release(key):
-            copy(text) 
-            exit(0)
+            if key not in seen:      # rabo do ctrl+alt do hotkey -> continua à escuta
+                return
+            copy(text)
+            return False             # para o listener (o with/join saem limpos)
         # start listener
-        with keyboard.Listener(on_release=on_release) as listener:
+        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
             listener.join()
     
 # =======================================================================================
