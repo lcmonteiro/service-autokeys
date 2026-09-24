@@ -28,9 +28,21 @@ def config_credentials(data):
     hotkeys_conf = {
         hotkeys_user:{},
         hotkeys_pass:{}}
+    data = data or {}
+    if not isinstance(data, dict):
+        raise ValueError(f'credentials: expected a mapping, got {type(data).__name__}')
     for key, entry in data.items():
+        # every entry is reachable by typing its name, so it must be text
+        name = str(key)
+        if not name:
+            raise ValueError('credentials: an entry has no name')
+        if not isinstance(entry, dict):
+            raise ValueError(f'credentials {name}: expected user and pass')
+        for field in ('user', 'pass'):
+            if entry.get(field) is None:
+                raise ValueError(f'credentials {name}: missing {field}')
         # user
-        hotkeys_conf[hotkeys_user][SeqKeys(*[Keyboard.KEY(x) for x in key])] = write_user(entry['user']) 
+        hotkeys_conf[hotkeys_user][SeqKeys(*[Keyboard.KEY(x) for x in name])] = write_user(str(entry['user']))
         # pass
-        hotkeys_conf[hotkeys_pass][SeqKeys(*[Keyboard.KEY(x) for x in key])] = write_pass(entry['pass'])
+        hotkeys_conf[hotkeys_pass][SeqKeys(*[Keyboard.KEY(x) for x in name])] = write_pass(str(entry['pass']))
     return hotkeys_conf

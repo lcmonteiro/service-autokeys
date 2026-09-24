@@ -3,7 +3,8 @@
 #                         _ \   |  |    |  (   | . <   _|   \  / \__ \ 
 # @autor: Luis Monteiro _/  _\ \__/    _| \___/ _|\_\ ___|   _|  ____/ 
 # =======================================================================================
-from yaml import safe_load
+import sys
+from yaml import YAMLError, safe_load
 from argparse import ArgumentParser
 from autokeys.engine import KeyPatterns
 
@@ -18,7 +19,10 @@ def load_settings(path):
     if not path:
         return {}
     with open(path, 'r') as ss:
-        return safe_load(ss)
+        settings = safe_load(ss) or {}
+    if not isinstance(settings, dict):
+        raise ValueError(f'expected a mapping, got {type(settings).__name__}')
+    return settings
 
 # =======================================================================================
 # entry point
@@ -30,13 +34,15 @@ def main(args=None):
         'settings', help='settings file path.', type=str, default='.')
     arguments = parser.parse_args(args=args)
 
-    # load service settings 
-    settings = load_settings(arguments.settings)
-
-    # load service keys configuration
-    config = {}
-    config.update(config_commands(settings.get('commands', {})))
-    config.update(config_credentials(settings.get('credentials', {})))
+    # load service settings and keys configuration
+    try:
+        settings = load_settings(arguments.settings)
+        config = {}
+        config.update(config_commands(settings.get('commands') or {}))
+        config.update(config_credentials(settings.get('credentials') or {}))
+    except (OSError, ValueError, YAMLError) as error:
+        print(f'{arguments.settings}: {error}', file=sys.stderr)
+        return 2
     try:
         with KeyPatterns(config) as listener:
             listener.join()
