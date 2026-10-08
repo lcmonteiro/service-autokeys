@@ -25,7 +25,7 @@ from math import comb
 
 from yaml import safe_load
 
-from autokeys.codec_share import Codec, CodecError, SharesError, StampError
+from codec_share import Codec, CodecError, SharesError, StampError
 
 # =======================================================================================
 # definitions

@@ -12,10 +12,10 @@ name = "autokeys"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "codec-share" },
     { name = "pynput" },
     { name = "pyperclip" },
     { name = "pyyaml" },
-    { name = "wasmtime" },
 ]
 
 [package.dev-dependencies]
@@ -25,14 +25,22 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "codec-share", git = "https://github.com/lcmonteiro/codec-share?rev=dd47c46824214f6d7bfb84846289ed4ef71ca551" },
     { name = "pynput", specifier = ">=1.7" },
     { name = "pyperclip", specifier = ">=1.8" },
     { name = "pyyaml", specifier = ">=5.4" },
-    { name = "wasmtime", specifier = ">=20" },
 ]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ruff", specifier = ">=0.6" }]
+
+[[package]]
+name = "codec-share"
+version = "0.1.0"
+source = { git = "https://github.com/lcmonteiro/codec-share?rev=dd47c46824214f6d7bfb84846289ed4ef71ca551#dd47c46824214f6d7bfb84846289ed4ef71ca551" }
+dependencies = [
+    { name = "wasmtime" },
+]
 
 [[package]]
 name = "evdev"
