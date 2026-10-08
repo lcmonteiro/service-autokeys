@@ -17,10 +17,12 @@ dependencies = [
     "pynput>=1.7",
     "pyperclip>=1.8",
     "pyyaml>=5.4",
+    "wasmtime>=20",
 ]
 
 [project.scripts]
 autokeys = "autokeys.service:main"
+autokeys-share = "autokeys.shares:main"
 
 [project.urls]
 Homepage = "https://github.com/lcmonteiro/service-autokeys"
