@@ -1,8 +1,8 @@
 # =======================================================================================
 # codec-share python binding
 #
-#   vendored from https://github.com/lcmonteiro/codec-share (wasm/), together with
-#   codec-share.wasm built by its wasm/build.sh: update both files together
+#   copied from https://github.com/lcmonteiro/codec-share wasm/codec_share.py, together
+#   with its committed wasm/codec-share.wasm: update both files together
 #
 #   runs codec-share.wasm (see codec_share.cpp) with wasmtime: pip install wasmtime
 #
