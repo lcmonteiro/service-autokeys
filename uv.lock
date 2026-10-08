@@ -25,7 +25,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "codec-share", git = "https://github.com/lcmonteiro/codec-share?rev=dd47c46824214f6d7bfb84846289ed4ef71ca551" },
+    { name = "codec-share", git = "https://github.com/lcmonteiro/codec-share?rev=6d5b1176fc761637e0e359003cfdbd8d31d48f85" },
     { name = "pynput", specifier = ">=1.7" },
     { name = "pyperclip", specifier = ">=1.8" },
     { name = "pyyaml", specifier = ">=5.4" },
@@ -37,7 +37,7 @@ dev = [{ name = "ruff", specifier = ">=0.6" }]
 [[package]]
 name = "codec-share"
 version = "0.1.0"
-source = { git = "https://github.com/lcmonteiro/codec-share?rev=dd47c46824214f6d7bfb84846289ed4ef71ca551#dd47c46824214f6d7bfb84846289ed4ef71ca551" }
+source = { git = "https://github.com/lcmonteiro/codec-share?rev=6d5b1176fc761637e0e359003cfdbd8d31d48f85#6d5b1176fc761637e0e359003cfdbd8d31d48f85" }
 dependencies = [
     { name = "wasmtime" },
 ]

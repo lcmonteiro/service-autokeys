@@ -47,7 +47,7 @@ default-groups = ["dev"]
 [tool.uv.sources]
 # codec-share python package (binding + codec-share.wasm), pinned to a commit until its
 # first release, then to the release wheel url
-codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "dd47c46824214f6d7bfb84846289ed4ef71ca551" }
+codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "6d5b1176fc761637e0e359003cfdbd8d31d48f85" }
 
 [dependency-groups]
 dev = [

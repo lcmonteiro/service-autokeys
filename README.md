@@ -114,7 +114,8 @@ The file holds passwords in clear text: keep it private (`chmod 600`).
 
 Instead of the clear text file the settings can live in shares, coded with
 [codec-share](https://github.com/lcmonteiro/codec-share) (its `codec-share` python
-package, the codec built as WebAssembly). The settings split in `n` shares, any `k` of them open it, but
+package: the codec built as WebAssembly and the share files; `autokeys-share` is its
+`codec-share` command with the autokeys names and the settings validation). The settings split in `n` shares, any `k` of them open it, but
 only together with the pin, or the stamp file, used to split:
 
 ```bash
@@ -123,7 +124,14 @@ autokeys-share split config.yml -n 4 -k 3        # 4 shares, any 3 open it
 autokeys-share stamp ~/my.stamp                  # random stamp file, instead of a pin
 autokeys-share split config.yml --stamp ~/my.stamp
 autokeys-share join config.yml.1.share config.yml.3.share > config.yml   # back to clear text
+autokeys-share edit config.yml.1.share config.yml.3.share                # edit in place
 ```
+
+`edit` opens the settings in your editor (`-e`, else `$VISUAL`, `$EDITOR`) from a private
+temporary file. When the editor closes with valid changes, the settings are split again
+over all the shares (`config.yml.N.share` siblings included) and the temporary file is
+wiped and removed; invalid yaml is never saved. The editor command must wait for the
+file to be closed (`code --wait`). Restart the service to load the new settings.
 
 The service takes the shares in place of the settings file:
 

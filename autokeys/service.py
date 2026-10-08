@@ -6,7 +6,8 @@
 from yaml import safe_load
 from argparse import ArgumentParser
 from autokeys.engine import KeyPatterns
-from autokeys.shares import ShareError, is_share, join, load_stamp, add_stamp_arguments
+from codec_share.shares import ShareError, is_share, join
+from autokeys.shares import load_stamp, add_stamp_arguments
 
 # configuration sources 
 from autokeys.commands    import config_commands
