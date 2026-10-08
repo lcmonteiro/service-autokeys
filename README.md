@@ -25,6 +25,17 @@ The installer takes care of everything:
 4. installs the `autokeys` command in `~/.local/bin`,
 5. creates `~/.config/autokeys/config.yml` from the sample, readable only by you.
 
+On Windows, from PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/lcmonteiro/service-autokeys/main/setup.ps1 | iex
+```
+
+It does the same with the Windows locations: sources in `%LOCALAPPDATA%\autokeys`,
+settings in `%APPDATA%\autokeys\config.yml` (readable only by you), and the
+`autokeys` command in `%USERPROFILE%\.local\bin`. `git` is optional there, without it
+the sources are downloaded as a zip archive.
+
 From a checkout the very same script installs from the local sources:
 
 ```bash
@@ -49,12 +60,21 @@ The same values can be set with `AUTOKEYS_REPO`, `AUTOKEYS_REF`, `AUTOKEYS_HOME`
 wget -qO- https://raw.githubusercontent.com/lcmonteiro/service-autokeys/main/setup.sh | bash -s -- --no-tool
 ```
 
+On Windows the options are `-Ref`, `-Dir`, `-ConfigDir` and `-NoTool`, and to pass them
+the downloaded script is run as a script block:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/lcmonteiro/service-autokeys/main/setup.ps1))) -NoTool
+```
+
 ## Run
 
 ```bash
 ./run.sh                     # uses the first settings file found
 ./run.sh path/to/config.yml  # uses a specific settings file
 ```
+
+On Windows use `.\run.ps1` the same way; it looks for `%APPDATA%\autokeys\config.yml`.
 
 `run.sh` keeps the environment in sync with `uv` before starting, so it is also the
 way to run the service from a development checkout. Without arguments it looks for
