@@ -28,7 +28,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1" },
-    { name = "codec-share", git = "https://github.com/lcmonteiro/codec-share?subdirectory=wasm%2Fbindings%2Fpython&rev=ab6d04904c23dc96c7e98d02b93ecf748506aced" },
+    { name = "codec-share", git = "https://github.com/lcmonteiro/codec-share?subdirectory=wasm%2Fbindings%2Fpython&rev=310fc63e0ca93d08d7ce6521dc14f4983acc4c4b" },
     { name = "pynput", specifier = ">=1.7" },
     { name = "pyperclip", specifier = ">=1.8" },
     { name = "pyyaml", specifier = ">=5.4" },
@@ -68,7 +68,7 @@ wheels = [
 [[package]]
 name = "codec-share"
 version = "0.1.0"
-source = { git = "https://github.com/lcmonteiro/codec-share?subdirectory=wasm%2Fbindings%2Fpython&rev=ab6d04904c23dc96c7e98d02b93ecf748506aced#ab6d04904c23dc96c7e98d02b93ecf748506aced" }
+source = { git = "https://github.com/lcmonteiro/codec-share?subdirectory=wasm%2Fbindings%2Fpython&rev=310fc63e0ca93d08d7ce6521dc14f4983acc4c4b#310fc63e0ca93d08d7ce6521dc14f4983acc4c4b" }
 dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "click", version = "8.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },

@@ -15,8 +15,7 @@ from functools import partial
 
 from yaml import safe_load
 
-from codec_share.cli import ask_stamp as _ask_stamp
-from codec_share.cli import commands
+from codec_share import cli
 
 PIN_ENVVAR = 'AUTOKEYS_PIN'
 
@@ -28,7 +27,11 @@ def validate(data):
         raise ValueError('settings must be a yaml mapping')
 
 
-ask_stamp = partial(_ask_stamp, pin_envvar=PIN_ENVVAR)
+OPTIONS = cli.Options(pin_envvar=PIN_ENVVAR, validate=validate)
 
-main = commands('autokeys-share', pin_envvar=PIN_ENVVAR, validate=validate,
-                what='settings file')
+ask_stamp = partial(cli.ask_stamp, pin_envvar=PIN_ENVVAR)
+
+
+def main(args=None):
+    """the codec-share command, as autokeys-share"""
+    cli.main(args, prog_name='autokeys-share', obj=OPTIONS)

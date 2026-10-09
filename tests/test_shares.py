@@ -11,7 +11,7 @@ from unittest import mock
 
 from click.testing import CliRunner
 
-from codec_share import Stamp, join, load
+from codec_share import Stamp, cli, join, load
 
 from autokeys import shares
 
@@ -33,7 +33,8 @@ class SettingsSharesTest(unittest.TestCase):
         self.runner = CliRunner()
 
     def share(self, *args, ok=True, **kwargs):
-        result = self.runner.invoke(shares.main, list(map(str, args)), env=PIN, **kwargs)
+        result = self.runner.invoke(cli.main, list(map(str, args)), env=PIN,
+                                    obj=shares.OPTIONS, prog_name='autokeys-share', **kwargs)
         if ok:
             self.assertEqual(result.exit_code, 0, result.output)
         return result
@@ -50,7 +51,7 @@ class SettingsSharesTest(unittest.TestCase):
         self.settings.write_bytes(b'- not\n- settings\n')
         result = self.share('split', self.settings, ok=False)
         self.assertEqual(result.exit_code, 1)
-        self.assertIn('invalid settings file', result.output)
+        self.assertIn('invalid file: settings must be a yaml mapping', result.output)
         self.assertEqual(list(self.folder.glob('*.share')), [])
 
     def test_edit_updates_the_shares(self):
