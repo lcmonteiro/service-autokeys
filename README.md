@@ -113,9 +113,9 @@ The file holds passwords in clear text: keep it private (`chmod 600`).
 ### Shares
 
 Instead of the clear text file the settings can live in shares, coded with
-[codec-share](https://github.com/lcmonteiro/codec-share) (its `codec-share` python
-package: the codec built as WebAssembly and the share files; `autokeys-share` is its
-`codec-share` command with the autokeys names and the settings validation). The settings split in `n` shares, any `k` of them open it, but
+[codec-share](https://github.com/lcmonteiro/codec-share) (its python binding, on the codec
+built as WebAssembly; `autokeys-share` is its `codec-share` command with the autokeys names
+and the settings validation). The settings split in `n` shares, any `k` of them open it, but
 only together with the pin, or the stamp file, used to split:
 
 ```bash
@@ -169,5 +169,5 @@ required. On Linux the `evdev` backend is compiled at install time and needs a C
 compiler plus the Python headers (`build-essential` and `python3-dev` on Debian and
 Ubuntu).
 
-`codec-share` comes from its repository, pinned in `[tool.uv.sources]` of
+`codec-share` comes from its repository (`wasm/bindings/python`), pinned in `[tool.uv.sources]` of
 `pyproject.toml`: to update it, change the pin there and run `uv lock`.

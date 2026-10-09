@@ -5,8 +5,8 @@
 # =======================================================================================
 # settings shares
 #
-#   the settings file split in codec-share share files (split, join, edit), see
-#   codec_share.shares: here only with the autokeys names and the settings validation.
+#   the settings file split in codec-share share files: the codec-share commands under
+#   the autokeys names ($AUTOKEYS_PIN) with the settings validation.
 #
 #   autokeys-share split config.yml
 #   autokeys-share edit config.yml.1.share config.yml.3.share
@@ -15,10 +15,10 @@ from functools import partial
 
 from yaml import safe_load
 
-from codec_share import shares
+from codec_share.cli import ask_stamp as _ask_stamp
+from codec_share.cli import commands
 
-PIN_ENV = 'AUTOKEYS_PIN'
-PROG = 'autokeys-share'
+PIN_ENVVAR = 'AUTOKEYS_PIN'
 
 
 def validate(data):
@@ -28,9 +28,7 @@ def validate(data):
         raise ValueError('settings must be a yaml mapping')
 
 
-load_stamp = partial(shares.load_stamp, pin_env=PIN_ENV)
-add_stamp_arguments = partial(shares.add_stamp_arguments, pin_env=PIN_ENV, prog=PROG)
+ask_stamp = partial(_ask_stamp, pin_envvar=PIN_ENVVAR)
 
-
-def main(args=None):
-    shares.main(args, prog=PROG, pin_env=PIN_ENV, validate=validate, what='settings file')
+main = commands('autokeys-share', pin_envvar=PIN_ENVVAR, validate=validate,
+                what='settings file')

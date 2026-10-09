@@ -14,6 +14,7 @@ authors = [
     { name = "Luis Monteiro", email = "monteiro.lcm@gmail.com" },
 ]
 dependencies = [
+    "click>=8.1",
     "pynput>=1.7",
     "pyperclip>=1.8",
     "pyyaml>=5.4",
@@ -45,9 +46,9 @@ packages = ["autokeys"]
 default-groups = ["dev"]
 
 [tool.uv.sources]
-# codec-share python package (binding + codec-share.wasm), pinned to a commit until its
-# first release, then to the release wheel url
-codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "6d5b1176fc761637e0e359003cfdbd8d31d48f85" }
+# codec-share python binding (wasm/bindings/python), pinned to a commit until its first
+# release, then to the release wheel url
+codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "ab6d04904c23dc96c7e98d02b93ecf748506aced", subdirectory = "wasm/bindings/python" }
 
 [dependency-groups]
 dev = [
