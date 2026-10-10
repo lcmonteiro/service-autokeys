@@ -14,13 +14,16 @@ authors = [
     { name = "Luis Monteiro", email = "monteiro.lcm@gmail.com" },
 ]
 dependencies = [
+    "click>=8.1",
     "pynput>=1.7",
     "pyperclip>=1.8",
     "pyyaml>=5.4",
+    "codec-share>=0.1",
 ]
 
 [project.scripts]
 autokeys = "autokeys.service:main"
+autokeys-share = "autokeys.shares:main"
 
 [project.urls]
 Homepage = "https://github.com/lcmonteiro/service-autokeys"
@@ -41,6 +44,11 @@ packages = ["autokeys"]
 # -----------------------------------------------------------------------------
 [tool.uv]
 default-groups = ["dev"]
+
+[tool.uv.sources]
+# codec-share python binding (wasm/bindings/python), pinned to its master commit until its
+# first release (v0.1.0), then to the release wheel url
+codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "60039a8de45e77006822909521409447695222d7", subdirectory = "wasm/bindings/python" }
 
 [dependency-groups]
 dev = [

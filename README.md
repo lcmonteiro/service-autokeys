@@ -110,12 +110,51 @@ Each entry is reachable by typing its key after a hotkey combination:
 
 The file holds passwords in clear text: keep it private (`chmod 600`).
 
+### Shares
+
+Instead of the clear text file the settings can live in shares, coded with
+[codec-share](https://github.com/lcmonteiro/codec-share) (its python binding, on the codec
+built as WebAssembly; `autokeys-share` is its `codec-share` command with the autokeys names
+and the settings validation). The settings split in `n` shares, any `k` of them open it, but
+only together with the pin, or the stamp file, used to split:
+
+```bash
+autokeys-share split config.yml                  # asks a pin, writes config.yml.{1,2,3}.share
+autokeys-share split config.yml -n 4 -k 3        # 4 shares, any 3 open it
+autokeys-share stamp ~/my.stamp                  # random stamp file, instead of a pin
+autokeys-share split config.yml --stamp ~/my.stamp
+autokeys-share join config.yml.1.share config.yml.3.share > config.yml   # back to clear text
+autokeys-share edit config.yml.1.share config.yml.3.share                # edit in place
+```
+
+`edit` opens the settings in your editor (`-e`, else `$VISUAL`, `$EDITOR`) from a private
+temporary file. When the editor closes with valid changes, the settings are split again
+over all the shares (`config.yml.N.share` siblings included) and the temporary file is
+wiped and removed; invalid yaml is never saved. The editor command must wait for the
+file to be closed (`code --wait`). Restart the service to load the new settings.
+
+The service takes the shares in place of the settings file:
+
+```bash
+autokeys config.yml.1.share config.yml.3.share                   # asks the pin
+autokeys config.yml.1.share config.yml.3.share --stamp ~/my.stamp
+./run.sh config.yml.1.share config.yml.3.share
+```
+
+`AUTOKEYS_PIN` gives the pin without asking. Keep the shares apart (different disks,
+devices) and the stamp file away from them, then delete the clear text file.
+
+The coding hides the settings from a casual reader of any share, it is **not**
+encryption: whoever gets `k` shares and the stamp opens the settings, and with `k`
+shares alone a short pin, or even the stamp, can be found by trying.
+
 ## Development
 
 ```bash
 uv sync                     # environment with the dev dependencies
 uv run autokeys config.yml  # run from the sources
 uv run ruff check .         # lint
+uv run python -m unittest discover -s tests   # tests
 uv lock --upgrade           # refresh the lock file
 uv add <package>            # add a dependency
 ```
@@ -129,3 +168,6 @@ no system Python or virtualenv handling is needed.
 required. On Linux the `evdev` backend is compiled at install time and needs a C
 compiler plus the Python headers (`build-essential` and `python3-dev` on Debian and
 Ubuntu).
+
+`codec-share` comes from its repository (`wasm/bindings/python`), pinned in `[tool.uv.sources]` of
+`pyproject.toml`: to update it, change the pin there and run `uv lock`.
