@@ -10,7 +10,7 @@ from yaml import YAMLError, safe_load
 
 from autokeys.engine import KeyPatterns
 from autokeys.shares import ask_stamp
-from codec_share import CodecError, InvalidShare, Share, join
+from codec_share import CodecError, InvalidShare, Share, expand, join
 
 # configuration sources 
 from autokeys.commands    import config_commands
@@ -20,8 +20,8 @@ from autokeys.credentials import config_credentials
 # helpers
 # =======================================================================================
 def load_settings(paths, stamp_file=None):
-    """settings of a settings file, or of its shares"""
-    data = [Path(path).read_bytes() for path in paths]
+    """settings of a settings file, or of its shares (files, or a split settings folder)"""
+    data = [Path(path).read_bytes() for path in expand(paths)]
     if not any(map(Share.is_share, data)):
         if len(data) > 1:
             raise InvalidShare('only share files can be given together')
@@ -34,14 +34,15 @@ def load_settings(paths, stamp_file=None):
 # =======================================================================================
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('settings', nargs=-1, required=True,
-                type=click.Path(exists=True, dir_okay=False, path_type=Path))
+                type=click.Path(exists=True, path_type=Path))
 @click.option('--stamp', 'stamp_file', metavar='FILE',
               type=click.Path(exists=True, dir_okay=False, path_type=Path),
               help='Stamp file of the shares, instead of a pin (asked, or $AUTOKEYS_PIN).')
 def main(settings, stamp_file):
     """Type credentials and run commands from hotkeys.
 
-    SETTINGS is the settings file, or the paths of its shares (see autokeys-share split).
+    SETTINGS is the settings file, the folder it was split in, or the paths of its shares
+    (see autokeys-share split).
     """
     # load service settings
     try:

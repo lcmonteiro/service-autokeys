@@ -40,7 +40,7 @@ class SettingsSharesTest(unittest.TestCase):
         return result
 
     def path(self, index):
-        return self.folder / f'config.yml.{index}.share'
+        return self.settings / f'{index}.share'
 
     def test_split_uses_the_autokeys_pin(self):
         self.share('split', self.settings)
@@ -52,7 +52,7 @@ class SettingsSharesTest(unittest.TestCase):
         result = self.share('split', self.settings, ok=False)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('invalid file: settings must be a yaml mapping', result.output)
-        self.assertEqual(list(self.folder.glob('*.share')), [])
+        self.assertTrue(self.settings.is_file())
 
     def test_edit_updates_the_shares(self):
         self.share('split', self.settings)
@@ -63,10 +63,10 @@ class SettingsSharesTest(unittest.TestCase):
 
     def test_edit_drops_invalid_settings(self):
         self.share('split', self.settings)
-        before = [p.read_bytes() for p in sorted(self.folder.glob('*.share'))]
+        before = [p.read_bytes() for p in sorted(self.settings.glob('*.share'))]
         self.share('edit', self.path(1), self.path(2),
                    '-e', editor("open(path, 'w').write('a: [unclosed')"), input='n\n')
-        self.assertEqual([p.read_bytes() for p in sorted(self.folder.glob('*.share'))], before)
+        self.assertEqual([p.read_bytes() for p in sorted(self.settings.glob('*.share'))], before)
 
     def test_service_loads_shares(self):
         self.share('split', self.settings)
@@ -74,9 +74,19 @@ class SettingsSharesTest(unittest.TestCase):
         sys.modules.setdefault('pyperclip', mock.MagicMock())
         from autokeys import service
         with mock.patch.dict('os.environ', PIN):
-            settings = service.load_settings([self.path(3), self.path(2)])
-        self.assertEqual(settings['credentials']['aa']['user'], 'aa-user')
-        self.assertEqual(service.load_settings([self.settings]), settings)
+            from_shares = service.load_settings([self.path(3), self.path(2)])
+            from_folder = service.load_settings([self.settings])
+        self.assertEqual(from_shares['credentials']['aa']['user'], 'aa-user')
+        self.assertEqual(from_folder, from_shares)
+        plain = self.folder / 'plain.yml'
+        plain.write_bytes(SETTINGS)
+        self.assertEqual(service.load_settings([plain]), from_shares)
+
+    def test_split_makes_a_settings_folder(self):
+        self.share('split', self.settings)
+        self.assertEqual(sorted(p.name for p in self.settings.iterdir()),
+                         ['1.share', '2.share', '3.share'])
+        self.assertEqual(join(load([self.settings]), Stamp.from_pin('1234')), SETTINGS)
 
 
 if __name__ == '__main__':

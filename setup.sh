@@ -158,7 +158,7 @@ install_command() {
 
 install_settings() {
     local target="$CFG_DIR/config.yml"
-    if [ -f "$target" ]; then
+    if [ -e "$target" ]; then
         log "settings kept: $target"
         return
     fi

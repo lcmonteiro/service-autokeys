@@ -119,30 +119,38 @@ and the settings validation). The settings split in `n` shares, any `k` of them 
 only together with the pin, or the stamp file, used to split:
 
 ```bash
-autokeys-share split config.yml                  # asks a pin, writes config.yml.{1,2,3}.share
+autokeys-share split config.yml                  # asks a pin, config.yml becomes a folder of shares
 autokeys-share split config.yml -n 4 -k 3        # 4 shares, any 3 open it
+autokeys-share split config.yml -o ~/backup      # shares in ~/backup, config.yml kept
 autokeys-share stamp ~/my.stamp                  # random stamp file, instead of a pin
 autokeys-share split config.yml --stamp ~/my.stamp
-autokeys-share join config.yml.1.share config.yml.3.share > config.yml   # back to clear text
-autokeys-share edit config.yml.1.share config.yml.3.share                # edit in place
+autokeys-share join config.yml > plain.yml       # back to clear text
+autokeys-share edit config.yml                   # edit in place
 ```
+
+`split` replaces `config.yml` by a folder of the same name holding `1.share`, `2.share`,
+`3.share` (readable only by you). Before removing anything it joins every group of `k`
+shares back from disk and compares it with the settings file: the file is only wiped once
+they all give it back, any failure leaves it untouched.
 
 `edit` opens the settings in your editor (`-e`, else `$VISUAL`, `$EDITOR`) from a private
 temporary file. When the editor closes with valid changes, the settings are split again
-over all the shares (`config.yml.N.share` siblings included) and the temporary file is
-wiped and removed; invalid yaml is never saved. The editor command must wait for the
-file to be closed (`code --wait`). Restart the service to load the new settings.
+over all the shares and the temporary file is wiped and removed; invalid yaml is never
+saved. The editor command must wait for the file to be closed (`code --wait`). Restart the
+service to load the new settings.
 
-The service takes the shares in place of the settings file:
+The service takes the settings folder (or some of its shares) in place of the file, so
+`./run.sh` finds `~/.config/autokeys/config.yml` either way:
 
 ```bash
-autokeys config.yml.1.share config.yml.3.share                   # asks the pin
-autokeys config.yml.1.share config.yml.3.share --stamp ~/my.stamp
-./run.sh config.yml.1.share config.yml.3.share
+autokeys config.yml                              # asks the pin
+autokeys config.yml --stamp ~/my.stamp
+autokeys config.yml/1.share config.yml/3.share   # only some of the shares
+./run.sh
 ```
 
-`AUTOKEYS_PIN` gives the pin without asking. Keep the shares apart (different disks,
-devices) and the stamp file away from them, then delete the clear text file.
+`AUTOKEYS_PIN` gives the pin without asking. For more safety move some shares elsewhere
+(other disks, devices) and keep the stamp file away from them.
 
 The coding hides the settings from a casual reader of any share, it is **not**
 encryption: whoever gets `k` shares and the stamp opens the settings, and with `k`

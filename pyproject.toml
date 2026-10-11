@@ -46,9 +46,9 @@ packages = ["autokeys"]
 default-groups = ["dev"]
 
 [tool.uv.sources]
-# codec-share python binding (wasm/bindings/python), pinned to its master commit until its
-# first release (v0.1.0), then to the release wheel url
-codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "60039a8de45e77006822909521409447695222d7", subdirectory = "wasm/bindings/python" }
+# codec-share python binding (wasm/bindings/python), pinned to a commit until its first
+# release (v0.1.0), then to the release wheel url
+codec-share = { git = "https://github.com/lcmonteiro/codec-share", rev = "2c98de257e2a5fb795341c92c187261f63f55428", subdirectory = "wasm/bindings/python" }
 
 [dependency-groups]
 dev = [
