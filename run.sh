@@ -37,7 +37,7 @@ EOF
 resolve_settings() {
     local candidate
     for candidate in "${AUTOKEYS_CONFIG:-}" "$CFG_DIR/config.yml" "$SRC_DIR/config.yml"; do
-        if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+        if [ -n "$candidate" ] && [ -e "$candidate" ]; then
             printf '%s' "$candidate"
             return
         fi
@@ -60,7 +60,7 @@ command -v uv >/dev/null 2>&1 || {
 if [ $# -gt 0 ]; then
     SETTINGS="$1"
     shift
-    [ -f "$SETTINGS" ] || die "settings file not found: $SETTINGS"
+    [ -e "$SETTINGS" ] || die "settings file not found: $SETTINGS"
 else
     SETTINGS="$(resolve_settings)"
 fi

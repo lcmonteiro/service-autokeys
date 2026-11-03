@@ -45,7 +45,7 @@ usage: run.ps1 [settings-file]
 # first settings file that exists, from the most specific to the most generic
 function Resolve-Settings {
     foreach ($candidate in @($env:AUTOKEYS_CONFIG, (Join-Path $CfgDir 'config.yml'), (Join-Path $SrcDir 'config.yml'))) {
-        if ($candidate -and (Test-Path -PathType Leaf $candidate)) { return $candidate }
+        if ($candidate -and (Test-Path $candidate)) { return $candidate }
     }
     Die "no settings file found, create $CfgDir\config.yml (see config-sample.yml)"
 }
@@ -64,7 +64,7 @@ if (-not (Get-Command 'uv' -ErrorAction SilentlyContinue)) {
 }
 
 if ($Settings) {
-    if (-not (Test-Path -PathType Leaf $Settings)) { Die "settings file not found: $Settings" }
+    if (-not (Test-Path $Settings)) { Die "settings file not found: $Settings" }
 } else {
     $Settings = Resolve-Settings
 }
